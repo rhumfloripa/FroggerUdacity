@@ -18,10 +18,21 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x += this.speed * dt;
-
+    //verifica se chegou ao final da tela e move o inimigo para esquerda e reposiciona de forma aleatória no .x
     if(this.x > 550){
-        this.x = -100;
+        this.x = -(100 + (Math.floor(Math.random(50) * 10)));
         this.speed = 100 + Math.floor(Math.random() * 256);
+    }
+    //Colisão do Player com Inimigo
+    if (player.x < this.x + 60 && player.x + 37 > this.x && player.y < this.y + 25 && 30 + player.y > this.y) {
+
+        if(player.lifes > 0){
+            player.x = 200;
+            player.y = 380;
+            player.lifes --; //Desconta vida do player e manda para posição inicial
+        }
+
+        alert("Você perdeu!");
     }
 };
 
@@ -42,12 +53,71 @@ var Player = function(x, y, speed){
     this.lifes = 3;
 };
 
+Player.prototype.update = function() {
+    if (this.y > 380) this.y = 380;
+    if (this.x > 400) this.x = 400;
+    if (this.x < 0) this.x = 0;
+    if (this.y < 0) {
+        this.score ++;
+        this.x = 200;
+        this.y = 380;
+
+    }
+    //console.log('x :'+ this.x + ' |y :'+this.y);
+};
+
+Player.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    hud(this.score, this.lifes);
+};
+
+Player.prototype.handleInput = function(keyPress) {
+    switch (keyPress) {
+        case 'left':
+            this.x -= this.speed + 50;
+            break;
+        case 'up':
+            this.y -= this.speed + 30;
+            break;
+        case 'right':
+            this.x += this.speed + 50;
+            break;
+        case 'down':
+            this.y += this.speed + 30;
+            break;
+    }
+};
+
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
+var allEnemies = [];
+var enemyPosition = [60,140,220];
+var player = new Player(200,380,50);
+var enemy;
+enemyPosition.forEach(function (_y) {
+    enemy = new Enemy(-(100 + (Math.floor(Math.random(50) * 10))), _y, 100 + Math.floor(Math.random() * 256));
+    allEnemies.push(enemy);
+
+});
+var hudDiv = document.createElement('div');
+
+//HUD
+function hud() {
+    ctx.font = "30px Tahoma";
+    ctx.fillstyle = 'black';
+    ctx.fillText("Score: " + player.score, 10, 90);
+    ctx.fillText("Life: " + player.lifes, 410, 90);
+};
 
 
+// var hud = function(_score, _lifes) {
+//     var canvas = document.getElementsByTagName('canvas');
+//     var ctx_hud = canvas[0];
+//     hudDiv.innerHTML = 'Score: ' + _score + '| Lifes: ' + _lifes;
+//     document.body.insertBefore(hudDiv, ctx_hud[0]);
+// };
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
