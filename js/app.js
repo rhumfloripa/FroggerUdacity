@@ -20,8 +20,8 @@ Enemy.prototype.update = function(dt) {
     this.x += this.speed * dt;
     //verifica se chegou ao final da tela e move o inimigo para esquerda e reposiciona de forma aleatória no .x
     if(this.x > 550){
-        this.x = -(100 + (Math.floor(Math.random(50) * 10)));
-        this.speed = 100 + Math.floor(Math.random() * 256);
+        this.x = -(100 + (Math.floor(Math.random(50) * 10))); // defive de forma aleatoria o ponto de partida X do inimigo
+        this.speed = 100 + Math.floor(Math.random() * 256); // define de forma aleatória a velocidade do inimigo
     }
     //Colisão do Player com Inimigo
     if (player.x < this.x + 60 && player.x + 37 > this.x && player.y < this.y + 25 && 30 + player.y > this.y) {
@@ -32,7 +32,7 @@ Enemy.prototype.update = function(dt) {
             player.lifes --; //Desconta vida do player e manda para posição inicial
         }
 
-        alert("Você perdeu!");
+        //alert("Você perdeu!");
     }
 };
 
@@ -44,33 +44,35 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-var Player = function(x, y, speed){
-    this.x = x;
-    this.y = y;
-    this.speed = speed;
+var Player = function(_x, _y, _speed){
+    this.x = _x;
+    this.y = _y;
+    this.speed = _speed;
     this.sprite = 'images/char-boy.png';
     this.score = 0;
     this.lifes = 3;
 };
 
+// limitando a movimentação do player no mapa
 Player.prototype.update = function() {
     if (this.y > 380) this.y = 380;
     if (this.x > 400) this.x = 400;
     if (this.x < 0) this.x = 0;
-    if (this.y < 0) {
-        this.score ++;
-        this.x = 200;
+    if (this.y < 0) { // verifica se chegou na agua.
+        this.score ++; // adiciona 1 ponto ao score
+        this.x = 200; // envia para o ponto inicial para nova jogada
         this.y = 380;
 
     }
-    //console.log('x :'+ this.x + ' |y :'+this.y);
+
 };
 
 Player.prototype.render = function(){
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    hud(this.score, this.lifes);
+    hud(this.score, this.lifes); // Renderiza e atualiza o HUB
 };
 
+//movimentando o player
 Player.prototype.handleInput = function(keyPress) {
     switch (keyPress) {
         case 'left':
@@ -92,32 +94,24 @@ Player.prototype.handleInput = function(keyPress) {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [];
-var enemyPosition = [60,140,220];
-var player = new Player(200,380,50);
-var enemy;
+
+var allEnemies = []; // vetor de inimigos
+var enemyPosition = [60,140,220]; // pos y dos inimigos
+var player = new Player(200,380,50); // Player
+var enemy; // inimigo temporario
 enemyPosition.forEach(function (_y) {
-    enemy = new Enemy(-(100 + (Math.floor(Math.random(50) * 10))), _y, 100 + Math.floor(Math.random() * 256));
-    allEnemies.push(enemy);
+    enemy = new Enemy(-(100 + (Math.floor(Math.random(50) * 10))), _y, 100 + Math.floor(Math.random() * 256)); // cria i inimigo
+    allEnemies.push(enemy); // envia para o vetor de inimigos
 
 });
-var hudDiv = document.createElement('div');
 
 //HUD
 function hud() {
     ctx.font = "30px Tahoma";
     ctx.fillstyle = 'black';
-    ctx.fillText("Score: " + player.score, 10, 90);
-    ctx.fillText("Life: " + player.lifes, 410, 90);
+    ctx.fillText("Score: " + player.score, 10, 48);
+    ctx.fillText("Life: " + player.lifes, 410, 48);
 };
-
-
-// var hud = function(_score, _lifes) {
-//     var canvas = document.getElementsByTagName('canvas');
-//     var ctx_hud = canvas[0];
-//     hudDiv.innerHTML = 'Score: ' + _score + '| Lifes: ' + _lifes;
-//     document.body.insertBefore(hudDiv, ctx_hud[0]);
-// };
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
